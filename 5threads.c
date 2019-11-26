@@ -1,6 +1,8 @@
 #include <pthread.h>
 #include <stdio.h>
 
+//test commit 
+
 static int counter = 0;
 pthread_mutex_t lock1;
 
