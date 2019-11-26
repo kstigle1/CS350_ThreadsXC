@@ -6,6 +6,8 @@
 static int counter = 0;
 pthread_mutex_t lock1;
 pthread_spinlock_t lock2;
+//pthread_cond_t lock3 = PTHREAD_COND_INITIALIZER;
+//pthread_mutex_t lock3B = PTHREAD_MUTEX_INITIALIZER;
 
 void *doCount1(void *label) //mutex
 {
@@ -18,23 +20,28 @@ void *doCount1(void *label) //mutex
 }
 
 
-void *doCount2(void *label)
+void *doCount2(void *label) //spin
 {
-	//pthread_spin_lock(&lock2);
-	//printf("*");
 	for (int i=0; i<10000000; i++)
 	{
 		pthread_spin_lock(&lock2);
-		//printf("*");
 		counter++;
 		pthread_spin_unlock(&lock2);
 	}
-	//pthread_spin_unlock(&lock2);
 }
 
+int lock3 = 0;
 void *doCount3(void *label)
 {
-	//
+	for (int i=0; i<10000000; i++)
+	{
+		wait(lock3 == 0);
+		lock3 = 1;
+		counter++;
+		lock3 = 0;
+		signal(lock3 == 0);
+		
+	}
 }
 
 
@@ -100,6 +107,7 @@ int main (int argc, char * argv[])
 	pthread_spin_init(&lock2, 0);
 	locker2(); //spin
 	counter = 0;
+	//pthread_cond_init(&lock3, NULL);
 	locker3();
 	counter = 0;
 	return 0;
